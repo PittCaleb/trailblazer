@@ -58,6 +58,18 @@ The Stop Simulation button is non-functional at this time.
       * At end of each segment, new best path becomes the parent and next segment is initiated
     * May need to add new parameter to allow for differing number of generations for each segment.
       * i.e. 500k to come up with basic solution, but then run this out for 1 million more just to see if a better path can ever be found
+* UI
+  * Allow UI Box to cease simulation
+  * Data entry box
+    * Radio buttons (T/F)
+    * Data validation before submission
+  * Output
+    * Add dashboard element
+      * Display current generation
+      * Display current best score & its generation
+      * Display details of current best path (turns)
+  * Allow entry of path and button to render it
+* Refactor "circle" to "path"
 
 ## Notes
 This is a work in progress.  I read a couple of articles on AI and decided to write this without any guidence or code examples.  All algorythms and process flow were novel to me.  If you could see how this evolved you would be amazed.  This is a teaching project, for myself.

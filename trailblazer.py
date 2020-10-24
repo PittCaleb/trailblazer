@@ -164,7 +164,7 @@ def get_direction(generation, circle, default):
 def initialize_pygame(default):
     pygame.init()
     default.screen = display.set_mode((WIDTH, HEIGHT), 0, 32)
-    display.set_caption("AI Line")
+    display.set_caption("Trailblazer")
     default.reset_screen()
     return default
 
