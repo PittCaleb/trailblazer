@@ -24,8 +24,9 @@ SPLITS = 50
 MUTATION_FREEDOM = 4
 
 # Examples
-BOXES = ((240, 150, 90, 90), (240, 275, 200, 70), (150, 50, 60, 150), (440, 75, 50, 50))  # left, top, width, height
-BOXES = "(150, 50, 300, 175), (300, 300, 300, 75), (500, 200, 50, 25)"
+# BOXES = ((240, 150, 90, 90), (240, 275, 200, 70), (150, 50, 60, 150), (440, 75, 50, 50))  # left, top, width, height
+# BOXES = "(150, 50, 300, 175), (300, 300, 300, 75), (500, 200, 50, 25)"
+BOXES = ((280, 200, 80, 80), (0,300,10,10))
 # Currently being reset inside SetupDefaults until I can parse this correctly
 # copy this line to setupDefaults if you want to use a box
 
@@ -108,7 +109,7 @@ def set_values_from_form(entries):
             boxes = value.split(',')
             print(boxes)
             print('MUST fix handling boxes')
-            boxes = ''
+            boxes = BOXES
 
         if entry_key == 'Splits':
             splits = int(value)

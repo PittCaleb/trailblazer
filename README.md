@@ -6,6 +6,9 @@ AI project to blaze a trail across a screen through obstacles and towards a goal
 python trailblazer.py
 ```
 
+![Screenshot](trailblazer-screenshot.png)
+
+
 ## Requirements
 There is no requirements.txt as of now.  You will probably need the following packages:  
 `pip install pygame`  
