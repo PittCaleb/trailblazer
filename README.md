@@ -27,11 +27,11 @@ Once simulation is closed, you can modify parameters and re-start sim or Quit
 The Stop Simulation button is non-functional at this time.
 
 ## ToDo
-* Direction
-  * Change from 8 ordinal possibilties to 360 degrees
-* Position
-  * Calculate movement mathematically (i.e. `sin()`) rather than pure STEP increments
-  * Store float position, display int
+* ~~Direction~~
+  * ~~Change from 8 ordinal possibilties to 360 degrees~~
+* ~~Position~~
+  * ~~Calculate movement mathematically (i.e. `sin()`) rather than pure STEP increments~~
+  * ~~Store float position, display int~~
 * Obstacles (currently Boxes):
   * Parse box/obstacles properly
   * Use pygame collision detection rather than if-checking coordinates
@@ -65,8 +65,8 @@ The Stop Simulation button is non-functional at this time.
     * Data validation before submission
   * Output
     * Add dashboard element
-      * Display current generation
-      * Display current best score & its generation
+      * ~~Display current generation~~
+      * ~~Display current best score & its generation~~
       * Display details of current best path (turns)
   * Allow entry of path and button to render it
 * Refactor "circle" to "path"

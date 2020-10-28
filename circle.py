@@ -1,4 +1,4 @@
-from math import sqrt
+from math import sqrt, cos, sin, radians
 from time import perf_counter
 from datetime import datetime
 from pprint import pprint
@@ -66,23 +66,10 @@ class Circle:
     def move(self, direction, default, draw_only=False):
         self.old_position = self.position
 
-        if direction == 0:  # N
-            self.position = (self.position[0], self.position[1] - default.step_distance)
-        elif direction == 1:  # NE
-            self.position = (self.position[0] + default.step_distance, self.position[1] - default.step_distance)
-        elif direction == 2:  # E
-            self.position = (self.position[0] + default.step_distance, self.position[1])
-        elif direction == 3:  # SE
-            self.position = (self.position[0] + default.step_distance, self.position[1] + default.step_distance)
-        elif direction == 4:  # S
-            self.position = (self.position[0], self.position[1] + default.step_distance)
-        elif direction == 5:  # SW
-            self.position = (self.position[0] - default.step_distance, self.position[1] + default.step_distance)
-        elif direction == 6:  # W
-            self.position = (self.position[0] - default.step_distance, self.position[1])
-        elif direction == 7:  # NW
-            self.position = (self.position[0] - default.step_distance, self.position[1] - default.step_distance)
+        diff_x = default.step_distance * cos(radians(direction-90))
+        diff_y = default.step_distance * sin(radians(direction-90))
 
+        self.position = (self.position[0] + diff_x, self.position[1] + diff_y)
         self.score = self.calculate_score(default)
 
         if self.score < self.best_score:
@@ -97,18 +84,23 @@ class Circle:
         if self.score < default.win_threshold:
             self.win = True
 
+    def display_position(self, old=False):
+        if old:
+            return (int(self.old_position[0]), int(self.old_position[1]))
+        return (int(self.position[0]), int(self.position[1]))
+
     def draw(self, default, circle_color=None, overwrite=True):
         if overwrite:
-            draw.circle(default.screen, Color().GREY, self.old_position, self.radius)
+            draw.circle(default.screen, Color().GREY, self.display_position(old=True), self.radius)
 
         if circle_color is not None:
-            draw.circle(default.screen, circle_color, self.position, self.radius)
+            draw.circle(default.screen, circle_color, self.display_position(), self.radius)
         elif self.dead:
-            draw.circle(default.screen, Color().RED, self.position, self.radius)
+            draw.circle(default.screen, Color().RED, self.display_position(), self.radius)
         elif self.win:
-            draw.circle(default.screen, Color().GREEN, self.position, self.radius)
+            draw.circle(default.screen, Color().GREEN, self.display_position(), self.radius)
         else:
-            draw.circle(default.screen, self.color, self.position, self.radius)
+            draw.circle(default.screen, self.color, self.display_position(), self.radius)
 
         display.update()
 

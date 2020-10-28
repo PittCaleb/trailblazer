@@ -21,7 +21,7 @@ MAX_MOVES = 2500
 WIN_THRESHOLD = 25
 MUTATION_RATE = 50
 SPLITS = 50
-MUTATION_FREEDOM = 4
+MUTATION_FREEDOM = 180
 
 # Examples
 # BOXES = ((240, 150, 90, 90), (240, 275, 200, 70), (150, 50, 60, 150), (440, 75, 50, 50))  # left, top, width, height
@@ -117,7 +117,7 @@ def set_values_from_form(entries, output_links):
         if entry_key == 'Mutation Freedom':
             mutation_freedom = int(value)
 
-    direction_degrees = 7  # Not user settable, but needs stored in default
+    direction_degrees = 359  # Not user settable, but needs stored in default
 
     print(
         'Initating Simulation with:\nstartx={}, starty={}, goal={}, verbose={}, generations={}, max_moves={}, win_threshold={}, mutation_rate={}, obstacles={}, splits={}'.format(
