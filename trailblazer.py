@@ -71,7 +71,7 @@ def draw_path(path, default):
     path_circle.draw_path(default)
 
 
-def set_values_from_form(entries):
+def set_values_from_form(entries, output_links):
     for entry in entries:
         entry_key = entry
         value = entries[entry].get()
@@ -117,7 +117,7 @@ def set_values_from_form(entries):
         if entry_key == 'Mutation Freedom':
             mutation_freedom = int(value)
 
-        direction_degrees = 7  # Not user settable, but needs stored in default
+    direction_degrees = 7  # Not user settable, but needs stored in default
 
     print(
         'Initating Simulation with:\nstartx={}, starty={}, goal={}, verbose={}, generations={}, max_moves={}, win_threshold={}, mutation_rate={}, obstacles={}, splits={}'.format(
@@ -126,7 +126,8 @@ def set_values_from_form(entries):
     return Default(startx=startx, starty=starty, goal=goal, verbose=verbose, generations=generations,
                    max_moves=max_moves, win_threshold=win_threshold, mutation_rate=mutation_rate, boxes=boxes,
                    splits=splits, width=WIDTH, height=HEIGHT, direction_degrees=direction_degrees,
-                   mutation_freedom=mutation_freedom, step_distance=STEP_DISTANCE, circle_size=CIRCLE_SIZE)
+                   mutation_freedom=mutation_freedom, step_distance=STEP_DISTANCE, circle_size=CIRCLE_SIZE,
+                   output_links=output_links)
 
 
 def get_move_limit(generation, default, circle):
@@ -169,8 +170,8 @@ def initialize_pygame(default):
     return default
 
 
-def run_simulation(entries):
-    default = set_values_from_form(entries)
+def run_simulation(entries, output_links):
+    default = set_values_from_form(entries, output_links)
     default = initialize_pygame(default)
     doit(default)
 
@@ -228,10 +229,34 @@ def stop_simulation():
     # sys.exit()
 
 
+def setup_output(form):
+    output_fields = ['Generation', 'Best Gen', 'Best Steps', 'Best Score']
+    output_links = {}
+
+    for field in output_fields:
+        row = tk.Frame(form)
+        label = tk.Label(row, width=22, text=field, anchor='w')
+        entry = tk.Entry(row)
+        entry.insert(0, '')
+        row.pack(side=tk.TOP,
+                 fill=tk.X,
+                 padx=5,
+                 pady=5)
+        label.pack(side=tk.LEFT)
+        entry.pack(side=tk.RIGHT,
+                   expand=tk.YES,
+                   fill=tk.X)
+        output_links[field] = entry
+
+    return output_links
+
 def acquire_ai_parameters():
     form_interface = tk.Tk()
     entries = makeform(form_interface, input_fields)
-    start_button = tk.Button(form_interface, text='Start Simulation', command=(lambda e=entries: run_simulation(e)))
+
+    output_links = setup_output(form_interface)
+
+    start_button = tk.Button(form_interface, text='Start Simulation', command=(lambda e=entries: run_simulation(e, output_links)))
     start_button.pack(side=tk.LEFT, padx=5, pady=5)
     stop_button = tk.Button(form_interface, text='Stop Simulation', command=(lambda e=entries: stop_simulation(e)))
     stop_button.pack(side=tk.LEFT, padx=5, pady=5)
@@ -239,6 +264,5 @@ def acquire_ai_parameters():
     quit_button.pack(side=tk.LEFT, padx=5, pady=5)
 
     form_interface.mainloop()
-
 
 acquire_ai_parameters()

@@ -4,7 +4,7 @@ from pygame import *
 class Default:
     def __init__(self, startx, starty, goal, verbose, generations,
                  max_moves, win_threshold, mutation_rate, boxes, splits, width, height, direction_degrees,
-                 mutation_freedom, step_distance, circle_size, screen=None, ):
+                 mutation_freedom, step_distance, circle_size, output_links=None, screen=None, ):
         self.startx = startx
         self.starty = starty
         self.goal = goal
@@ -22,6 +22,7 @@ class Default:
         self.mutation_freedom = mutation_freedom
         self.step_distance = step_distance
         self.circle_size = circle_size
+        self.output_links = output_links
 
     def reset_screen(self):
         self.screen.fill(Color().WHITE)

@@ -2,9 +2,13 @@ from math import sqrt
 from time import perf_counter
 from datetime import datetime
 from pprint import pprint
+import locale
 
 from pygame import *
 from models import *
+import tkinter as tk
+
+locale.setlocale(locale.LC_ALL, '')  # Use '' for auto, or force e.g. to 'en_US.UTF-8'
 
 class Circle:
     def __init__(self, circle_color, radius, default):
@@ -120,8 +124,31 @@ class Circle:
             path_circle.move(move, default, True)
             path_circle.draw(default, Color().PURPLE, False)
 
+    def update_generation_field(self, generation, default):
+        default.output_links['Generation'].delete(0, tk.END)
+        default.output_links['Generation'].insert(0, '{:n}'.format(generation))
+        default.output_links['Generation'].update_idletasks()
+
+    def update_best_score(self, generation, steps, score, default):
+        default.output_links['Best Gen'].delete(0, tk.END)
+        default.output_links['Best Gen'].insert(0, '{:n}'.format(generation))
+        default.output_links['Best Gen'].update_idletasks()
+
+        default.output_links['Best Steps'].delete(0, tk.END)
+        default.output_links['Best Steps'].insert(0, '{:n}'.format(steps))
+        default.output_links['Best Steps'].update_idletasks()
+
+        default.output_links['Best Score'].delete(0, tk.END)
+        default.output_links['Best Score'].insert(0, '{:n}'.format(score))
+        default.output_links['Best Score'].update_idletasks()
+
+
+
     def advance_generation(self, generation, wins, bests, default):
         # pprint(vars(self))
+
+        if not generation % 100:
+            self.update_generation_field(generation, default)
 
         generation += 1
         time_now, elapsed_time, last_seg_time, gen_min = self.stats(generation)
@@ -134,6 +161,9 @@ class Circle:
 
         if self.win or generation == 1 or self.best_score < self.prev_best:
             bests += 1
+
+            self.update_best_score(generation-1, self.best_step,  self.best_score, default)
+
             if not bests % 5:
                 default.reset_screen()
             self.draw_path(default)
