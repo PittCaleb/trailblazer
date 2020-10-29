@@ -10,6 +10,7 @@ import tkinter as tk
 
 locale.setlocale(locale.LC_ALL, '')  # Use '' for auto, or force e.g. to 'en_US.UTF-8'
 
+
 class Circle:
     def __init__(self, circle_color, radius, default):
         self.old_position = (default.startx, default.starty)
@@ -66,8 +67,8 @@ class Circle:
     def move(self, direction, default, draw_only=False):
         self.old_position = self.position
 
-        diff_x = default.step_distance * cos(radians(direction-90))
-        diff_y = default.step_distance * sin(radians(direction-90))
+        diff_x = default.step_distance * cos(radians(direction - 90))
+        diff_y = default.step_distance * sin(radians(direction - 90))
 
         self.position = (self.position[0] + diff_x, self.position[1] + diff_y)
         self.score = self.calculate_score(default)
@@ -134,8 +135,6 @@ class Circle:
         default.output_links['Best Score'].insert(0, '{:n}'.format(score))
         default.output_links['Best Score'].update_idletasks()
 
-
-
     def advance_generation(self, generation, wins, bests, default):
         # pprint(vars(self))
 
@@ -154,7 +153,7 @@ class Circle:
         if self.win or generation == 1 or self.best_score < self.prev_best:
             bests += 1
 
-            self.update_best_score(generation-1, self.best_step,  self.best_score, default)
+            self.update_best_score(generation - 1, self.best_step, self.best_score, default)
 
             if not bests % 5:
                 default.reset_screen()

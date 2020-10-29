@@ -68,7 +68,7 @@ The Stop Simulation button is non-functional at this time.
       * ~~Display current generation~~
       * ~~Display current best score & its generation~~
       * Display details of current best path (turns)
-  * Allow entry of path and button to render it
+  * ~~Allow entry of path and button to render it~~
 * Refactor "circle" to "path"
 
 ## Notes

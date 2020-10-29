@@ -26,7 +26,7 @@ MUTATION_FREEDOM = 180
 # Examples
 # BOXES = ((240, 150, 90, 90), (240, 275, 200, 70), (150, 50, 60, 150), (440, 75, 50, 50))  # left, top, width, height
 # BOXES = "(150, 50, 300, 175), (300, 300, 300, 75), (500, 200, 50, 25)"
-BOXES = ((280, 200, 80, 80), (0,300,10,10))
+BOXES = ((280, 200, 80, 80), (0, 300, 10, 10))
 # Currently being reset inside SetupDefaults until I can parse this correctly
 # copy this line to setupDefaults if you want to use a box
 
@@ -170,10 +170,16 @@ def initialize_pygame(default):
     return default
 
 
-def run_simulation(entries, output_links):
+def run_simulation(entries, output_links, path=None):
     default = set_values_from_form(entries, output_links)
     default = initialize_pygame(default)
-    doit(default)
+
+    if path:
+        plot_path(path, default)
+    else:
+        doit(default)
+
+    end_pygame()
 
 
 def doit(default):
@@ -217,11 +223,28 @@ def doit(default):
 
     print(circle.parent)
 
+
+def end_pygame():
     # Wait for user to close the PyGame screen
     while True:
         for pyg_event in pygame.event.get():
             if pyg_event.type == QUIT:
                 pygame.quit()
+
+
+def clean_path_data(path_string):
+    path = path_string.get('1.0', tk.END)
+    path = path.strip().replace('(', '').replace(')', '').replace('[', '').replace(']', '')
+    path = path.split(',')
+    path = [int(x.strip()) for x in path]
+    return path
+
+
+def plot_path(path_field, default):
+    path = clean_path_data(path_field)
+    plot_circle = Circle(Color().BLUE, CIRCLE_SIZE, default)
+    plot_circle.history = path
+    plot_circle.draw_path(default)
 
 
 def stop_simulation():
@@ -250,19 +273,32 @@ def setup_output(form):
 
     return output_links
 
+
 def acquire_ai_parameters():
     form_interface = tk.Tk()
     entries = makeform(form_interface, input_fields)
 
     output_links = setup_output(form_interface)
 
-    start_button = tk.Button(form_interface, text='Start Simulation', command=(lambda e=entries: run_simulation(e, output_links)))
+    path_box = tk.Text(form_interface, width=60, height=5)
+    path_box.insert('1.0', 'seed')
+    path_box.pack()
+
+    start_button = tk.Button(form_interface, text='Start Simulation',
+                             command=(lambda e=entries: run_simulation(e, output_links)))
     start_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+    path_button = tk.Button(form_interface, text='Plot Path',
+                            command=(lambda e=entries, p=path_box: run_simulation(e, output_links, p)))
+    path_button.pack(side=tk.LEFT, padx=5, pady=5)
+
     stop_button = tk.Button(form_interface, text='Stop Simulation', command=(lambda e=entries: stop_simulation(e)))
     stop_button.pack(side=tk.LEFT, padx=5, pady=5)
+
     quit_button = tk.Button(form_interface, text='Quit', command=form_interface.quit)
     quit_button.pack(side=tk.LEFT, padx=5, pady=5)
 
     form_interface.mainloop()
+
 
 acquire_ai_parameters()
