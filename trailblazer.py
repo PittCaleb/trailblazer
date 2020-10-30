@@ -30,6 +30,7 @@ CIRCLE_SIZE = 2
 
 INPUT_TEXT = 1
 INPUT_RADIO = 2
+INPUT_BOX = 3
 
 input_fields = {'Start Pos': {'type': INPUT_TEXT, 'default': '(0, {})'.format(HEIGHT)},
                 'Goal': {'type': INPUT_TEXT, 'default': str(GOAL)},
@@ -38,7 +39,7 @@ input_fields = {'Start Pos': {'type': INPUT_TEXT, 'default': '(0, {})'.format(HE
                 'Max Moves': {'type': INPUT_TEXT, 'default': MAX_MOVES},
                 'Win Threshold': {'type': INPUT_TEXT, 'default': WIN_THRESHOLD},
                 'Mutation Rate': {'type': INPUT_TEXT, 'default': MUTATION_RATE},
-                'Obstacles': {'type': INPUT_TEXT, 'default': OBSTACLES},
+                'Obstacles': {'type': INPUT_BOX, 'default': OBSTACLES},
                 'Splits': {'type': INPUT_TEXT, 'default': SPLITS},
                 'Mutation Freedom': {'type': INPUT_TEXT, 'default': MUTATION_FREEDOM}}
 
@@ -63,6 +64,10 @@ def make_form(root, fields):
                     ent.select()
                 ent.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X)
                 entry_fields[field] = v
+        elif fields[field]['type'] == INPUT_BOX:
+            ent = tk.Text(row, width=49, height=4)
+            ent.insert('1.0', fields[field]['default'])
+            ent.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X)
 
         row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
         lab.pack(side=tk.LEFT)
@@ -136,7 +141,8 @@ def convert_string_into_tuple(str):
 def set_values_from_form(entry_fields, output_fields):
     for entry in entry_fields:
         entry_key = entry
-        value = entry_fields[entry].get()
+        if entry_key != 'Obstacles':
+            value = entry_fields[entry].get()
 
         if entry_key == 'Start Pos':
             start_position = convert_string_into_tuple(value)
@@ -163,6 +169,7 @@ def set_values_from_form(entry_fields, output_fields):
             mutation_rate = int(value)
 
         if entry_key == 'Obstacles':
+            value = entry_fields[entry].get('1.0', tk.END)
             obstacle_array = '{"obstacles": [' + value + ']}'
             obstacles = json.loads(obstacle_array)
 
