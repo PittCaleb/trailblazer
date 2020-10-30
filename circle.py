@@ -13,8 +13,8 @@ locale.setlocale(locale.LC_ALL, '')  # Use '' for auto, or force e.g. to 'en_US.
 
 class Circle:
     def __init__(self, circle_color, radius, default):
-        self.old_position = (default.startx, default.starty)
-        self.position = (default.startx, default.starty)
+        self.old_position = default.start_position
+        self.position = default.start_position
         self.color = circle_color
         self.steps = 0
         self.radius = radius
@@ -51,11 +51,17 @@ class Circle:
 
         # look into RECT.collidepoint(x,y) for easier collission detecting
         # after that works, define OBJECTS are a true JSON object with diff types, i.e. circle, polygon, etc
-        if default.boxes:
-            for box in default.boxes:
-                left, top, width, height = box
-                if left <= self.position[0] <= left + width and top <= self.position[1] <= top + height:
-                    return True
+        if default.obstacles:
+            for obstacle in default.obstacles['obstacles']:
+                if obstacle['type'] == 'Box':
+                    left, top, width, height = obstacle['params']
+                    if left <= self.position[0] <= left + width and top <= self.position[1] <= top + height:
+                        return True
+                elif obstacle['type'] == 'Circle':
+                    # free pass until collision detection enabled
+                    x = 1
+
+        return False
 
     def distance(self, position):
         return sqrt((position[0] - self.position[0]) ** 2 + (position[1] - self.position[1]) ** 2)
@@ -118,22 +124,22 @@ class Circle:
             path_circle.draw(default, Color().PURPLE, False)
 
     def update_generation_field(self, generation, default):
-        default.output_links['Generation'].delete(0, tk.END)
-        default.output_links['Generation'].insert(0, '{:n}'.format(generation))
-        default.output_links['Generation'].update_idletasks()
+        default.output_fields['Generation'].delete(0, tk.END)
+        default.output_fields['Generation'].insert(0, '{:n}'.format(generation))
+        default.output_fields['Generation'].update_idletasks()
 
     def update_best_score(self, generation, steps, score, default):
-        default.output_links['Best Gen'].delete(0, tk.END)
-        default.output_links['Best Gen'].insert(0, '{:n}'.format(generation))
-        default.output_links['Best Gen'].update_idletasks()
+        default.output_fields['Best Gen'].delete(0, tk.END)
+        default.output_fields['Best Gen'].insert(0, '{:n}'.format(generation))
+        default.output_fields['Best Gen'].update_idletasks()
 
-        default.output_links['Best Steps'].delete(0, tk.END)
-        default.output_links['Best Steps'].insert(0, '{:n}'.format(steps))
-        default.output_links['Best Steps'].update_idletasks()
+        default.output_fields['Best Steps'].delete(0, tk.END)
+        default.output_fields['Best Steps'].insert(0, '{:n}'.format(steps))
+        default.output_fields['Best Steps'].update_idletasks()
 
-        default.output_links['Best Score'].delete(0, tk.END)
-        default.output_links['Best Score'].insert(0, '{:n}'.format(score))
-        default.output_links['Best Score'].update_idletasks()
+        default.output_fields['Best Score'].delete(0, tk.END)
+        default.output_fields['Best Score'].insert(0, '{:n}'.format(score))
+        default.output_fields['Best Score'].update_idletasks()
 
     def advance_generation(self, generation, wins, bests, default):
         # pprint(vars(self))
@@ -167,8 +173,8 @@ class Circle:
             self.last_best_time = time_now
             self.last_best_gen = generation - 1
 
-        self.old_position = (default.startx, default.starty)
-        self.position = (default.startx, default.starty)
+        self.old_position = default.start_position
+        self.position = default.start_position
         self.steps = 0
         self.dead = False
         self.score = None

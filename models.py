@@ -2,18 +2,17 @@ from pygame import *
 
 
 class Default:
-    def __init__(self, startx, starty, goal, verbose, generations,
-                 max_moves, win_threshold, mutation_rate, boxes, splits, width, height, direction_degrees,
-                 mutation_freedom, step_distance, circle_size, output_links=None, screen=None, ):
-        self.startx = startx
-        self.starty = starty
+    def __init__(self, start_position, goal, verbose, generations,
+                 max_moves, win_threshold, mutation_rate, obstacles, splits, width, height, direction_degrees,
+                 mutation_freedom, step_distance, circle_size, output_fields=None, screen=None, ):
+        self.start_position = start_position
         self.goal = goal
         self.verbose = verbose
         self.generations = generations
         self.max_moves = max_moves
         self.win_threshold = win_threshold
         self.mutation_rate = mutation_rate
-        self.boxes = boxes
+        self.obstacles = obstacles
         self.splits = splits
         self.screen_width = width
         self.screen_height = height
@@ -22,19 +21,24 @@ class Default:
         self.mutation_freedom = mutation_freedom
         self.step_distance = step_distance
         self.circle_size = circle_size
-        self.output_links = output_links
+        self.output_fields = output_fields
 
     def reset_screen(self):
         self.screen.fill(Color().WHITE)
 
-        if self.boxes:
-            for box in self.boxes:
-                left, top, width, height = box
-                inner = (left + 2, top + 2, width - 4, height - 4)
-                draw.rect(self.screen, Color().PINK, box)
-                draw.rect(self.screen, Color().WHITE, inner)
+        if self.obstacles:
+            for obstacle in self.obstacles['obstacles']:
+                if obstacle['type'] == 'Box':
+                    left, top, width, height = obstacle['params']
+                    inner = (left + 2, top + 2, width - 4, height - 4)
+                    draw.rect(self.screen, Color().PINK, obstacle['params'])
+                    draw.rect(self.screen, Color().WHITE, inner)
+                elif obstacle['type'] == 'Circle':
+                    x, y, radius = obstacle['params']
+                    draw.circle(self.screen, Color().PINK, (x, y), radius)
+                    draw.circle(self.screen, Color().WHITE, (x, y), radius - 2)
 
-        draw.line(self.screen, Color().YELLOW, (self.startx, self.starty), self.goal, 1)
+        draw.line(self.screen, Color().YELLOW, self.start_position, self.goal, 1)
 
 
 class Color:

@@ -33,9 +33,12 @@ The Stop Simulation button is non-functional at this time.
   * ~~Calculate movement mathematically (i.e. `sin()`) rather than pure STEP increments~~
   * ~~Store float position, display int~~
 * Obstacles (currently Boxes):
-  * Parse box/obstacles properly
+  * ~~Parse box/obstacles properly~~
   * Use pygame collision detection rather than if-checking coordinates
-  * Change Obstacle type to JSON and parse to allow for circle, polygon, etc.
+  * ~~Change Obstacle type to JSON~~
+  * Allow for more object shapes
+    * ~~Circle~~
+    * Polygon
 * Segmentation
   * Today:
     * Segment is defined as `generations/splits`
@@ -61,7 +64,8 @@ The Stop Simulation button is non-functional at this time.
 * UI
   * Allow UI Box to cease simulation
   * Data entry box
-    * Radio buttons (T/F)
+    * ~~Radio buttons (T/F)~~
+    * ~~Starting position tuple not X and Y~~
     * Data validation before submission
   * Output
     * Add dashboard element

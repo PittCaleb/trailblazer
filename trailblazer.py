@@ -1,6 +1,6 @@
 import random
 import locale
-
+import json
 import tkinter as tk
 
 import pygame
@@ -23,46 +23,103 @@ MUTATION_RATE = 50
 SPLITS = 50
 MUTATION_FREEDOM = 180
 
-# Examples
-# BOXES = ((240, 150, 90, 90), (240, 275, 200, 70), (150, 50, 60, 150), (440, 75, 50, 50))  # left, top, width, height
-# BOXES = "(150, 50, 300, 175), (300, 300, 300, 75), (500, 200, 50, 25)"
-BOXES = ((280, 200, 80, 80), (0, 300, 10, 10))
-# Currently being reset inside SetupDefaults until I can parse this correctly
-# copy this line to setupDefaults if you want to use a box
+OBSTACLES = '{"type": "Box", "params": "(280, 200, 80, 80)"}, {"type": "Circle", "params": "(100, 100, 25)"}'
 
 STEP_DISTANCE = 2
 CIRCLE_SIZE = 2
 
-input_fields = {'X Start': 0,
-                'Y Start': HEIGHT,
-                'Goal': str(GOAL),
-                'Verbose': "True" if VERBOSE else "False",
-                'Generations': GENERATIONS,
-                'Max Moves': MAX_MOVES,
-                'Win Threshold': WIN_THRESHOLD,
-                'Mutation Rate': MUTATION_RATE,
-                'Obstacles': BOXES,
-                'Splits': SPLITS,
-                'Mutation Freedom': MUTATION_FREEDOM}
+INPUT_TEXT = 1
+INPUT_RADIO = 2
+
+input_fields = {'Start Pos': {'type': INPUT_TEXT, 'default': '(0, {})'.format(HEIGHT)},
+                'Goal': {'type': INPUT_TEXT, 'default': str(GOAL)},
+                'Output': {'type': INPUT_RADIO, 'options': {'Terse': True, 'Verbose': False}},
+                'Generations': {'type': INPUT_TEXT, 'default': GENERATIONS},
+                'Max Moves': {'type': INPUT_TEXT, 'default': MAX_MOVES},
+                'Win Threshold': {'type': INPUT_TEXT, 'default': WIN_THRESHOLD},
+                'Mutation Rate': {'type': INPUT_TEXT, 'default': MUTATION_RATE},
+                'Obstacles': {'type': INPUT_TEXT, 'default': OBSTACLES},
+                'Splits': {'type': INPUT_TEXT, 'default': SPLITS},
+                'Mutation Freedom': {'type': INPUT_TEXT, 'default': MUTATION_FREEDOM}}
 
 
-def makeform(root, fields):
-    entries = {}
+def make_form(root, fields):
+    entry_fields = {}
+
     for field in fields:
         row = tk.Frame(root)
         lab = tk.Label(row, width=22, text=field + ": ", anchor='w')
-        ent = tk.Entry(row)
-        ent.insert(0, fields[field])
-        row.pack(side=tk.TOP,
-                 fill=tk.X,
-                 padx=5,
-                 pady=5)
+
+        if fields[field]['type'] == INPUT_TEXT:
+            ent = tk.Entry(row)
+            ent.insert(0, fields[field]['default'])
+            ent.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X)
+        elif fields[field]['type'] == INPUT_RADIO:
+            v = tk.StringVar()
+            v.set('')  # initialize
+            for label in fields[field]['options']:
+                ent = tk.Radiobutton(row, text=label, variable=v, value=label)
+                if fields[field]['options'][label]:
+                    ent.select()
+                ent.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X)
+                entry_fields[field] = v
+
+        row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
         lab.pack(side=tk.LEFT)
-        ent.pack(side=tk.RIGHT,
-                 expand=tk.YES,
-                 fill=tk.X)
-        entries[field] = ent
-    return entries
+        if field not in entry_fields:
+            entry_fields[field] = ent
+    return entry_fields
+
+
+def setup_output(form):
+    output_labels = ['Generation', 'Best Gen', 'Best Steps', 'Best Score']
+    output_fields = {}
+
+    row = tk.Frame(form)
+    label = tk.Label(row, width=22, text='Simulation Results:', anchor='w')
+    row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+    label.pack(side=tk.LEFT)
+
+    for field in output_labels:
+        row = tk.Frame(form)
+        label = tk.Label(row, width=22, text=field, anchor='w')
+        entry = tk.Entry(row)
+        entry.insert(0, '')
+        row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+        label.pack(side=tk.LEFT)
+        entry.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X)
+        output_fields[field] = entry
+
+    return output_fields
+
+
+def setup_path_box(form):
+    row = tk.Frame(form)
+    label = tk.Label(row, width=22, text='Simulation Path:', anchor='w')
+    row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+    label.pack(side=tk.LEFT)
+
+    path_box = tk.Text(form, width=60, height=5)
+    path_box.insert('1.0', '')
+    path_box.pack()
+
+    return path_box
+
+
+def setup_buttons(form, entry_fields, output_fields, path_box):
+    start_button = tk.Button(form, text='Start Simulation',
+                             command=(lambda e=entry_fields: run_simulation(e, output_fields)))
+    start_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+    path_button = tk.Button(form, text='Plot Path',
+                            command=(lambda e=entry_fields, p=path_box: run_simulation(e, output_fields, p)))
+    path_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+    stop_button = tk.Button(form, text='Stop Simulation', command=stop_simulation())
+    stop_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+    quit_button = tk.Button(form, text='Quit', command=form.quit)
+    quit_button.pack(side=tk.LEFT, padx=5, pady=5)
 
 
 def draw_path(path, default):
@@ -71,23 +128,24 @@ def draw_path(path, default):
     path_circle.draw_path(default)
 
 
-def set_values_from_form(entries, output_links):
-    for entry in entries:
+def convert_string_into_tuple(str):
+    x, y = str.replace('(', '').replace(')', '').split(',')
+    return (int(x), int(y))
+
+
+def set_values_from_form(entry_fields, output_fields):
+    for entry in entry_fields:
         entry_key = entry
-        value = entries[entry].get()
+        value = entry_fields[entry].get()
 
-        if entry_key == 'X Start':
-            startx = int(value)
-
-        if entry_key == 'Y Start':
-            starty = int(value)
+        if entry_key == 'Start Pos':
+            start_position = convert_string_into_tuple(value)
 
         if entry_key == 'Goal':
-            x, y = value.replace('(', '').replace(')', '').split(',')
-            goal = (int(x), int(y))
+            goal = convert_string_into_tuple(value)
 
-        if entry_key == 'Verbose':
-            if value.lower() == 'true':
+        if entry_key == 'Output':
+            if value.lower() == 'verbose':
                 verbose = True
             else:
                 verbose = False
@@ -105,11 +163,16 @@ def set_values_from_form(entries, output_links):
             mutation_rate = int(value)
 
         if entry_key == 'Obstacles':
-            print(value)
-            boxes = value.split(',')
-            print(boxes)
-            print('MUST fix handling boxes')
-            boxes = BOXES
+            obstacle_array = '{"obstacles": [' + value + ']}'
+            obstacles = json.loads(obstacle_array)
+
+            for obstacle in obstacles['obstacles']:
+                if obstacle['type'] == 'Box':
+                    left, top, width, height = obstacle['params'].replace('(', '').replace(')', '').split(',')
+                    obstacle['params'] = (int(left), int(top), int(width), int(height))
+                if obstacle['type'] == 'Circle':
+                    x, y, radius = obstacle['params'].replace('(', '').replace(')', '').split(',')
+                    obstacle['params'] = (int(x), int(y), int(radius))
 
         if entry_key == 'Splits':
             splits = int(value)
@@ -120,14 +183,14 @@ def set_values_from_form(entries, output_links):
     direction_degrees = 359  # Not user settable, but needs stored in default
 
     print(
-        'Initating Simulation with:\nstartx={}, starty={}, goal={}, verbose={}, generations={}, max_moves={}, win_threshold={}, mutation_rate={}, obstacles={}, splits={}'.format(
-            startx, starty, goal, verbose, generations, max_moves, win_threshold, mutation_rate, boxes, splits))
+        'Initating Simulation with:\nstart_position={}, goal={}, verbose={}, generations={}, max_moves={}, win_threshold={}, mutation_rate={}, obstacles={}, splits={}'.format(
+            start_position, goal, verbose, generations, max_moves, win_threshold, mutation_rate, obstacles, splits))
 
-    return Default(startx=startx, starty=starty, goal=goal, verbose=verbose, generations=generations,
-                   max_moves=max_moves, win_threshold=win_threshold, mutation_rate=mutation_rate, boxes=boxes,
+    return Default(start_position=start_position, goal=goal, verbose=verbose, generations=generations,
+                   max_moves=max_moves, win_threshold=win_threshold, mutation_rate=mutation_rate, obstacles=obstacles,
                    splits=splits, width=WIDTH, height=HEIGHT, direction_degrees=direction_degrees,
                    mutation_freedom=mutation_freedom, step_distance=STEP_DISTANCE, circle_size=CIRCLE_SIZE,
-                   output_links=output_links)
+                   output_fields=output_fields)
 
 
 def get_move_limit(generation, default, circle):
@@ -170,8 +233,8 @@ def initialize_pygame(default):
     return default
 
 
-def run_simulation(entries, output_links, path=None):
-    default = set_values_from_form(entries, output_links)
+def run_simulation(entry_fields, output_fields, path=None):
+    default = set_values_from_form(entry_fields, output_fields)
     default = initialize_pygame(default)
 
     if path:
@@ -252,51 +315,13 @@ def stop_simulation():
     # sys.exit()
 
 
-def setup_output(form):
-    output_fields = ['Generation', 'Best Gen', 'Best Steps', 'Best Score']
-    output_links = {}
-
-    for field in output_fields:
-        row = tk.Frame(form)
-        label = tk.Label(row, width=22, text=field, anchor='w')
-        entry = tk.Entry(row)
-        entry.insert(0, '')
-        row.pack(side=tk.TOP,
-                 fill=tk.X,
-                 padx=5,
-                 pady=5)
-        label.pack(side=tk.LEFT)
-        entry.pack(side=tk.RIGHT,
-                   expand=tk.YES,
-                   fill=tk.X)
-        output_links[field] = entry
-
-    return output_links
-
-
 def acquire_ai_parameters():
     form_interface = tk.Tk()
-    entries = makeform(form_interface, input_fields)
 
-    output_links = setup_output(form_interface)
-
-    path_box = tk.Text(form_interface, width=60, height=5)
-    path_box.insert('1.0', 'seed')
-    path_box.pack()
-
-    start_button = tk.Button(form_interface, text='Start Simulation',
-                             command=(lambda e=entries: run_simulation(e, output_links)))
-    start_button.pack(side=tk.LEFT, padx=5, pady=5)
-
-    path_button = tk.Button(form_interface, text='Plot Path',
-                            command=(lambda e=entries, p=path_box: run_simulation(e, output_links, p)))
-    path_button.pack(side=tk.LEFT, padx=5, pady=5)
-
-    stop_button = tk.Button(form_interface, text='Stop Simulation', command=(lambda e=entries: stop_simulation(e)))
-    stop_button.pack(side=tk.LEFT, padx=5, pady=5)
-
-    quit_button = tk.Button(form_interface, text='Quit', command=form_interface.quit)
-    quit_button.pack(side=tk.LEFT, padx=5, pady=5)
+    entry_fields = make_form(form_interface, input_fields)
+    output_fields = setup_output(form_interface)
+    path_box = setup_path_box(form_interface)
+    setup_buttons(form_interface, entry_fields, output_fields, path_box)
 
     form_interface.mainloop()
 
