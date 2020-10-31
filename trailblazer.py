@@ -5,12 +5,12 @@ import tkinter as tk
 
 import pygame
 
-from circle import Circle
+from path import Path
 from models import *
 
 locale.setlocale(locale.LC_ALL, '')
 
-# Defaults
+# User Overrideable Defaults
 WIDTH = 640
 HEIGHT = 480
 
@@ -24,8 +24,11 @@ SPLITS = 50
 MUTATION_FREEDOM = 180
 OBSTACLES = '{"type": "Circle", "params": "(125, 400, 50)"}, {"type": "Circle", "params": "(200, 200, 75)"}, {"type": "Box", "params": "(450, 75, 100, 200)"}'
 
+
+# Simulation Defaults
 STEP_DISTANCE = 2
 CIRCLE_SIZE = 2
+REFRESH_NUMBER = 5
 
 INPUT_TEXT = 1
 INPUT_RADIO = 2
@@ -127,9 +130,9 @@ def setup_buttons(form, entry_fields, output_fields, path_box):
 
 
 def draw_path(path, default):
-    path_circle = Circle(Color().BLUE, CIRCLE_SIZE, default)
+    path_circle = Path(Color().BLUE, CIRCLE_SIZE, default)
     path_circle.history = path
-    path_circle.draw_path(default)
+    path_circle.draw(default)
 
 
 def convert_string_into_tuple(str):
@@ -199,9 +202,9 @@ def set_values_from_form(entry_fields, output_fields, path_box):
                    output_fields=output_fields, path_box=path_box)
 
 
-def get_move_limit(generation, default, circle):
-    if circle.prev_win:
-        return circle.prev_step
+def get_move_limit(generation, default, path):
+    if path.prev_win:
+        return path.prev_step
 
     generation_step = default.generations / default.splits
     generation_steps = int(generation / generation_step) + 1
@@ -217,16 +220,16 @@ def direction_correct(direction):
     return direction
 
 
-def get_direction(generation, circle, default):
-    if generation > 0 and circle.steps < len(circle.parent):
+def get_direction(generation, path, default):
+    if generation > 0 and path.steps < len(path.parent):
         mutate = random.randint(0, 100) < default.mutation_rate
 
         if mutate:
             mutation_plus_minus = int(default.mutation_freedom / 2)
             mutation_direction = random.randint(-1 * mutation_plus_minus, mutation_plus_minus)
-            return direction_correct(circle.parent[circle.steps] + mutation_direction)
+            return direction_correct(path.parent[path.steps] + mutation_direction)
         else:
-            return circle.parent[circle.steps]
+            return path.parent[path.steps]
 
     return random.randint(0, default.direction_degrees)
 
@@ -259,7 +262,7 @@ def doit(default):
     win_count = 0
     best_count = 0
 
-    circle = Circle(Color().BLUE, CIRCLE_SIZE, default)
+    path = Path(Color().BLUE, CIRCLE_SIZE, default)
 
     while generation < default.generations:
         for pyg_event in pygame.event.get():
@@ -267,35 +270,35 @@ def doit(default):
                 pygame.quit()
 
         if default.verbose:
-            if circle.steps == 0 and not generation % 10:
+            if path.steps == 0 and not generation % 10:
                 default.reset_screen()
-                circle.draw_path(default, parent=True)
-            circle.draw(default)
+                path.draw(default, parent=True)
+            path.plot(default)
 
-        move_limit = get_move_limit(generation, default, circle)
+        move_limit = get_move_limit(generation, default, path)
 
-        if not circle.dead and circle.steps < move_limit:
-            direction = get_direction(generation, circle, default)
+        if not path.dead and path.steps < move_limit:
+            direction = get_direction(generation, path, default)
 
-            circle.move(direction, default)
-            circle.steps += 1
+            path.move(direction, default)
+            path.steps += 1
 
-            if circle.win:
+            if path.win:
                 win_count += 1
 
-                if not win_count % 5:
+                if not win_count % REFRESH_NUMBER:
                     default.reset_screen()
 
                 if default.verbose:
-                    circle.draw_path(default)
+                    path.draw(default)
 
-                generation, best_count = circle.advance_generation(generation, win_count, best_count, default)
+                generation, best_count = path.advance_generation(generation, win_count, best_count, default)
         else:
-            generation, best_count = circle.advance_generation(generation, win_count, best_count, default)
+            generation, best_count = path.advance_generation(generation, win_count, best_count, default)
 
-    circle.update_generation_field(generation, default)
-    circle.update_path_box(default)
-    print(circle.parent)
+    path.update_generation_field(generation, default)
+    path.update_path_box(default)
+    print(path.parent)
 
 
 def end_pygame():
@@ -316,9 +319,9 @@ def clean_path_data(path_string):
 
 def plot_path(default):
     path = clean_path_data(default.path_box)
-    plot_circle = Circle(Color().BLUE, CIRCLE_SIZE, default)
-    plot_circle.history = path
-    plot_circle.draw_path(default)
+    plot_path = Path(Color().BLUE, CIRCLE_SIZE, default)
+    plot_path.history = path
+    plot_path.draw(default)
 
 
 def stop_simulation():

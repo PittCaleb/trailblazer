@@ -11,7 +11,7 @@ import tkinter as tk
 locale.setlocale(locale.LC_ALL, '')  # Use '' for auto, or force e.g. to 'en_US.UTF-8'
 
 
-class Circle:
+class Path:
     def __init__(self, circle_color, radius, default):
         self.old_position = default.start_position
         self.position = default.start_position
@@ -35,6 +35,7 @@ class Circle:
         self.start_time = perf_counter()
 
     def stats(self, generation):
+        """ Calculate the statistics displayed on the console """
         time_now = perf_counter()
         elapsed_time = time_now - self.start_time
         last_segment_length = time_now - self.last_best_time
@@ -44,6 +45,12 @@ class Circle:
         return time_now, elapsed_time, last_seg_time, gen_min
 
     def check_collision(self, default):
+        """
+        Determine if the path has met its demise
+         - Going off the edge of the screen
+         - Colliding with an obstacle
+        :return: True if dead; False otherwise
+        """
         # Edge of Screen
         if self.position[0] < 0 or self.position[0] > default.screen_width or \
                 self.position[1] < 0 or self.position[1] > default.screen_height:
@@ -57,13 +64,24 @@ class Circle:
         return False
 
     def distance(self, position):
+        """ Simple Pythagorean theorem calculation """
         return sqrt((position[0] - self.position[0]) ** 2 + (position[1] - self.position[1]) ** 2)
 
     def calculate_score(self, default):
+        """
+        Score calculation algorythm, the determinator of if one path is better than another
+        Today: simple distance between the current position and the goal position
+        Future: Integrate the length of the path into formula such that a closer but longer path is not necc better
+        """
         dist = self.distance(default.goal)
+
         return int(dist)
 
     def move(self, direction, default, draw_only=False):
+        """
+        Move path from by direction degrees
+        :param draw_only: if only drawing, do not update history
+        """
         self.old_position = self.position
 
         diff_x = default.step_distance * cos(radians(direction - 90))
@@ -85,38 +103,43 @@ class Circle:
             self.win = True
 
     def display_position(self, old=False):
+        """ Coverts a float position tuple into an integer position tuple """
         if old:
             return (int(self.old_position[0]), int(self.old_position[1]))
+
         return (int(self.position[0]), int(self.position[1]))
 
-    def draw(self, default, circle_color=None, overwrite=True):
+    def plot(self, default, circle_color=None, overwrite=True):
+        """ Plots a single point on the canvas """
         if overwrite:
-            draw.circle(default.screen, Color().GREY, self.display_position(old=True), self.radius)
+            draw.circle(default.screen, Color().VERBOSE, self.display_position(old=True), self.radius)
 
         if circle_color is not None:
             draw.circle(default.screen, circle_color, self.display_position(), self.radius)
         elif self.dead:
             draw.circle(default.screen, Color().RED, self.display_position(), self.radius)
         elif self.win:
-            draw.circle(default.screen, Color().GREEN, self.display_position(), self.radius)
+            draw.circle(default.screen, Color().WIN, self.display_position(), self.radius)
         else:
             draw.circle(default.screen, self.color, self.display_position(), self.radius)
 
         display.update()
 
-    def draw_path(self, default, parent=False):
-        path_circle = Circle(Color().BLUE, default.circle_size, default)
+    def draw(self, default, parent=False, mod=0):
+        """ Draws the entire path on the canvas """
+        draw_path = Path(Color().BLUE, default.circle_size, default)
 
         if parent:
-            path_circle.history = self.parent
+            draw_path.history = self.parent
         else:
-            path_circle.history = self.history
+            draw_path.history = self.history
 
-        for move in path_circle.history:
-            path_circle.move(move, default, True)
-            path_circle.draw(default, Color().PURPLE, False)
+        for move in draw_path.history:
+            draw_path.move(move, default, True)
+            draw_path.plot(default, Color(mod).TERSE, False)
 
     def update_path_box(self, default):
+        """ Update the UI to show the current path """
         default.path_box.delete('1.0', tk.END)
         comma = ', '
         comma = '[{}]'.format(comma.join(map(str, self.parent)))
@@ -124,11 +147,13 @@ class Circle:
         default.path_box.update_idletasks()
 
     def update_generation_field(self, generation, default):
+        """ Update the UI to show the current generation """
         default.output_fields['Generation'].delete(0, tk.END)
         default.output_fields['Generation'].insert(0, '{:n}'.format(generation))
         default.output_fields['Generation'].update_idletasks()
 
     def update_best_score(self, generation, steps, score, default):
+        """ Update the UI to show the current best score data """
         default.output_fields['Best Gen'].delete(0, tk.END)
         default.output_fields['Best Gen'].insert(0, '{:n}'.format(generation))
         default.output_fields['Best Gen'].update_idletasks()
@@ -144,6 +169,7 @@ class Circle:
         self.update_path_box(default)
 
     def advance_generation(self, generation, wins, bests, default):
+        """ Advance to the next generation in the simulation following a path termination or victory """
         if not generation % 100:
             self.update_generation_field(generation, default)
 
@@ -163,7 +189,7 @@ class Circle:
 
             if not bests % 5:
                 default.reset_screen()
-            self.draw_path(default)
+            self.draw(default, mod=bests)
 
             self.prev_best = self.best_score
             self.prev_step = self.best_step

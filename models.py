@@ -26,6 +26,7 @@ class Default:
         self.path_box = path_box
 
     def reset_screen(self):
+        """ Clear canvas and re-draw all obstacles and faint line between start/end """
         self.obstacle_objects = []
         self.screen.fill(Color().WHITE)
 
@@ -46,7 +47,11 @@ class Default:
 
 
 class Color:
-    def __init__(self):
+    def __init__(self, mod=0):
+        """
+        Basic color definitions for objects and lines
+        If mod passed, varies color by modulus for on-screen variance
+        """
         self.WHITE = (255, 255, 255)
         self.BLACK = (0, 0, 0)
         self.BLUE = (0, 128, 255)
@@ -56,3 +61,9 @@ class Color:
         self.PURPLE = (191, 87, 231)
         self.PINK = (255, 20, 147)
         self.YELLOW = (252, 237, 135)
+        self.WIN = self.GREEN
+        self.VERBOSE = self.GREY
+
+        terse_colors = [(225, 17, 188), (199, 17, 188), (177, 17, 188), (158, 17, 188), (143, 17, 188)]
+        self.TERSE = terse_colors[mod % 5]
+

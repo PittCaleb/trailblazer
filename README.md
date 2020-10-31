@@ -67,10 +67,10 @@ The Stop Simulation button is non-functional at this time.
 * Intermediate goals
   * Rather than just 1 end goal, multiple intermediary goals will be allowed
   * This would permit it to run around a course, i.e. track, or maze 
-* Colors
-  * Winning paths different color
-  * Color().WIN, Color().TERSE, Color().VERBOSE
-  * Color(count).TERSE returns one of X colors for count so multiple on screen are diff colors/shades
+* ~~Colors~~
+  * ~~Winning paths different color~~
+  * ~~Color().WIN, Color().TERSE, Color().VERBOSE~~
+  * ~~Color(count).TERSE returns one of X colors for count so multiple on screen are diff colors/shades~~
   * ~~Reset Screen at end of simulation so only 1 path is shown at conclusion of simulation~~
 * UI
   * Allow UI Box to cease simulation
@@ -82,11 +82,11 @@ The Stop Simulation button is non-functional at this time.
     * ~~Add dashboard element~~
       * ~~Display current generation~~
       * ~~Display current best score & its generation~~
-      * Display details of current best path (turns)
+      * ~~Display details of current best path~~
       * Show Wins
       * Show Bests
       * Bold labels
-      * Color change best gen/steps/score when winning path found
+      * ~~Color change best gen/steps/score when winning path found~~
       * ~~Correct negative degrees to positive~~
   * ~~Allow entry of path and button to render it~~
   * Save Path button
@@ -95,7 +95,7 @@ The Stop Simulation button is non-functional at this time.
     * Load config
   * Compare Paths
     * Would load a 2nd path file and compare against the one displayed with current config paramaters
-* Refactor "circle" to "path"
+* ~~Refactor "circle" to "path"~~
 
 ## Notes
 This is a work in progress.  I read a couple of articles on AI and decided to write this without any guidence or code examples.  All algorythms and process flow were novel to me.  If you could see how this evolved you would be amazed.  This is a teaching project, for myself.
