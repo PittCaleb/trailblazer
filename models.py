@@ -4,7 +4,7 @@ from pygame import *
 class Default:
     def __init__(self, start_position, goal, verbose, generations,
                  max_moves, win_threshold, mutation_rate, obstacles, splits, width, height, direction_degrees,
-                 mutation_freedom, step_distance, circle_size, output_fields=None, screen=None, ):
+                 mutation_freedom, step_distance, circle_size, output_fields=None, screen=None, path_box=None):
         self.start_position = start_position
         self.goal = goal
         self.verbose = verbose
@@ -23,6 +23,7 @@ class Default:
         self.circle_size = circle_size
         self.output_fields = output_fields
         self.obstacle_objects = []
+        self.path_box = path_box
 
     def reset_screen(self):
         self.obstacle_objects = []

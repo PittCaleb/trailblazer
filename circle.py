@@ -116,6 +116,13 @@ class Circle:
             path_circle.move(move, default, True)
             path_circle.draw(default, Color().PURPLE, False)
 
+    def update_path_box(self, default):
+        default.path_box.delete('1.0', tk.END)
+        comma = ', '
+        comma = '[{}]'.format(comma.join(map(str, self.parent)))
+        default.path_box.insert('1.0', comma)
+        default.path_box.update_idletasks()
+
     def update_generation_field(self, generation, default):
         default.output_fields['Generation'].delete(0, tk.END)
         default.output_fields['Generation'].insert(0, '{:n}'.format(generation))
@@ -133,6 +140,8 @@ class Circle:
         default.output_fields['Best Score'].delete(0, tk.END)
         default.output_fields['Best Score'].insert(0, '{:n}'.format(score))
         default.output_fields['Best Score'].update_idletasks()
+
+        self.update_path_box(default)
 
     def advance_generation(self, generation, wins, bests, default):
         if not generation % 100:

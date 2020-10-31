@@ -22,7 +22,6 @@ WIN_THRESHOLD = 25
 MUTATION_RATE = 50
 SPLITS = 50
 MUTATION_FREEDOM = 180
-
 OBSTACLES = '{"type": "Circle", "params": "(125, 400, 50)"}, {"type": "Circle", "params": "(200, 200, 75)"}, {"type": "Box", "params": "(450, 75, 100, 200)"}'
 
 STEP_DISTANCE = 2
@@ -138,7 +137,7 @@ def convert_string_into_tuple(str):
     return (int(x), int(y))
 
 
-def set_values_from_form(entry_fields, output_fields):
+def set_values_from_form(entry_fields, output_fields, path_box):
     for entry in entry_fields:
         entry_key = entry
         if entry_key != 'Obstacles':
@@ -197,7 +196,7 @@ def set_values_from_form(entry_fields, output_fields):
                    max_moves=max_moves, win_threshold=win_threshold, mutation_rate=mutation_rate, obstacles=obstacles,
                    splits=splits, width=WIDTH, height=HEIGHT, direction_degrees=direction_degrees,
                    mutation_freedom=mutation_freedom, step_distance=STEP_DISTANCE, circle_size=CIRCLE_SIZE,
-                   output_fields=output_fields)
+                   output_fields=output_fields, path_box=path_box)
 
 
 def get_move_limit(generation, default, circle):
@@ -211,10 +210,10 @@ def get_move_limit(generation, default, circle):
 
 
 def direction_correct(direction):
-    if direction > 7:
-        return direction - 8
+    if direction > 359:
+        return direction - 360
     elif direction < 0:
-        return direction + 8
+        return direction + 360
     return direction
 
 
@@ -241,29 +240,21 @@ def initialize_pygame(default):
 
 
 def run_simulation(entry_fields, output_fields, path_box, draw_path=None):
-    default = set_values_from_form(entry_fields, output_fields)
+    default = set_values_from_form(entry_fields, output_fields, path_box)
     default = initialize_pygame(default)
 
     if draw_path:
-        plot_path(path_box, default)
+        plot_path(default)
     else:
-        doit(default, path_box)
+        doit(default)
 
         default.reset_screen()
-        plot_path(path_box, default)
+        plot_path(default)
 
     end_pygame()
 
 
-def update_path_box(path, path_box):
-    path_box.delete('1.0', tk.END)
-    comma = ', '
-    comma = '[{}]'.format(comma.join(map(str, path)))
-    path_box.insert('1.0', comma)
-    path_box.update_idletasks()
-
-
-def doit(default, path_box):
+def doit(default):
     generation = 0
     win_count = 0
     best_count = 0
@@ -303,7 +294,7 @@ def doit(default, path_box):
             generation, best_count = circle.advance_generation(generation, win_count, best_count, default)
 
     circle.update_generation_field(generation, default)
-    update_path_box(circle.parent, path_box)
+    circle.update_path_box(default)
     print(circle.parent)
 
 
@@ -323,8 +314,8 @@ def clean_path_data(path_string):
     return path
 
 
-def plot_path(path_field, default):
-    path = clean_path_data(path_field)
+def plot_path(default):
+    path = clean_path_data(default.path_box)
     plot_circle = Circle(Color().BLUE, CIRCLE_SIZE, default)
     plot_circle.history = path
     plot_circle.draw_path(default)

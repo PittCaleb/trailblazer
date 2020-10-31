@@ -87,7 +87,7 @@ The Stop Simulation button is non-functional at this time.
       * Show Bests
       * Bold labels
       * Color change best gen/steps/score when winning path found
-      * Correct negative degrees to positive
+      * ~~Correct negative degrees to positive~~
   * ~~Allow entry of path and button to render it~~
   * Save Path button
     * Load path
