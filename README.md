@@ -32,13 +32,17 @@ The Stop Simulation button is non-functional at this time.
 * ~~Position~~
   * ~~Calculate movement mathematically (i.e. `sin()`) rather than pure STEP increments~~
   * ~~Store float position, display int~~
-* Obstacles (currently Boxes):
+* Obstacles ~~(currently Boxes)~~:
   * ~~Parse box/obstacles properly~~
-  * Use pygame collision detection rather than if-checking coordinates
+  * ~~Use pygame collision detection rather than if-checking coordinates~~
   * ~~Change Obstacle type to JSON~~
   * Allow for more object shapes
     * ~~Circle~~
+    * Ellipse
+    * Arc
     * Polygon
+    * Line
+
 * Segmentation
   * Today:
     * Segment is defined as `generations/splits`
@@ -67,8 +71,8 @@ The Stop Simulation button is non-functional at this time.
     * ~~Radio buttons (T/F)~~
     * ~~Starting position tuple not X and Y~~
     * Data validation before submission
-  * Output
-    * Add dashboard element
+  * ~~Output~~
+    * ~~Add dashboard element~~
       * ~~Display current generation~~
       * ~~Display current best score & its generation~~
       * Display details of current best path (turns)

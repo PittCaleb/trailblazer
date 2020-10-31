@@ -23,7 +23,7 @@ MUTATION_RATE = 50
 SPLITS = 50
 MUTATION_FREEDOM = 180
 
-OBSTACLES = '{"type": "Box", "params": "(280, 200, 80, 80)"}, {"type": "Circle", "params": "(100, 100, 25)"}'
+OBSTACLES = '{"type": "Circle", "params": "(125, 400, 50)"}, {"type": "Circle", "params": "(200, 200, 75)"}, {"type": "Box", "params": "(450, 75, 100, 200)"}'
 
 STEP_DISTANCE = 2
 CIRCLE_SIZE = 2

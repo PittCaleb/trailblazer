@@ -22,8 +22,10 @@ class Default:
         self.step_distance = step_distance
         self.circle_size = circle_size
         self.output_fields = output_fields
+        self.obstacle_objects = []
 
     def reset_screen(self):
+        self.obstacle_objects = []
         self.screen.fill(Color().WHITE)
 
         if self.obstacles:
@@ -31,12 +33,13 @@ class Default:
                 if obstacle['type'] == 'Box':
                     left, top, width, height = obstacle['params']
                     inner = (left + 2, top + 2, width - 4, height - 4)
-                    draw.rect(self.screen, Color().PINK, obstacle['params'])
+                    obstacle_object = draw.rect(self.screen, Color().PINK, obstacle['params'])
                     draw.rect(self.screen, Color().WHITE, inner)
                 elif obstacle['type'] == 'Circle':
                     x, y, radius = obstacle['params']
-                    draw.circle(self.screen, Color().PINK, (x, y), radius)
+                    obstacle_object = draw.circle(self.screen, Color().PINK, (x, y), radius)
                     draw.circle(self.screen, Color().WHITE, (x, y), radius - 2)
+                self.obstacle_objects.append(obstacle_object)
 
         draw.line(self.screen, Color().YELLOW, self.start_position, self.goal, 1)
 

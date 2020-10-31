@@ -49,17 +49,10 @@ class Circle:
                 self.position[1] < 0 or self.position[1] > default.screen_height:
             return True
 
-        # look into RECT.collidepoint(x,y) for easier collission detecting
-        # after that works, define OBJECTS are a true JSON object with diff types, i.e. circle, polygon, etc
-        if default.obstacles:
-            for obstacle in default.obstacles['obstacles']:
-                if obstacle['type'] == 'Box':
-                    left, top, width, height = obstacle['params']
-                    if left <= self.position[0] <= left + width and top <= self.position[1] <= top + height:
-                        return True
-                elif obstacle['type'] == 'Circle':
-                    # free pass until collision detection enabled
-                    x = 1
+        if default.obstacle_objects:
+            for obstacle in default.obstacle_objects:
+                if obstacle.collidepoint(self.position):
+                    return True
 
         return False
 
