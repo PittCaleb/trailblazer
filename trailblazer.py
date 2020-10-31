@@ -113,11 +113,11 @@ def setup_path_box(form):
 
 def setup_buttons(form, entry_fields, output_fields, path_box):
     start_button = tk.Button(form, text='Start Simulation',
-                             command=(lambda e=entry_fields: run_simulation(e, output_fields)))
+                             command=(lambda e=entry_fields, p=path_box: run_simulation(e, output_fields, p)))
     start_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-    path_button = tk.Button(form, text='Plot Path',
-                            command=(lambda e=entry_fields, p=path_box: run_simulation(e, output_fields, p)))
+    path_button = tk.Button(form, text='Plot Path', command=(
+        lambda e=entry_fields, p=path_box: run_simulation(e, output_fields, p, draw_path=True)))
     path_button.pack(side=tk.LEFT, padx=5, pady=5)
 
     stop_button = tk.Button(form, text='Stop Simulation', command=stop_simulation())
@@ -240,19 +240,30 @@ def initialize_pygame(default):
     return default
 
 
-def run_simulation(entry_fields, output_fields, path=None):
+def run_simulation(entry_fields, output_fields, path_box, draw_path=None):
     default = set_values_from_form(entry_fields, output_fields)
     default = initialize_pygame(default)
 
-    if path:
-        plot_path(path, default)
+    if draw_path:
+        plot_path(path_box, default)
     else:
-        doit(default)
+        doit(default, path_box)
+
+        default.reset_screen()
+        plot_path(path_box, default)
 
     end_pygame()
 
 
-def doit(default):
+def update_path_box(path, path_box):
+    path_box.delete('1.0', tk.END)
+    comma = ', '
+    comma = '[{}]'.format(comma.join(map(str, path)))
+    path_box.insert('1.0', comma)
+    path_box.update_idletasks()
+
+
+def doit(default, path_box):
     generation = 0
     win_count = 0
     best_count = 0
@@ -291,6 +302,8 @@ def doit(default):
         else:
             generation, best_count = circle.advance_generation(generation, win_count, best_count, default)
 
+    circle.update_generation_field(generation, default)
+    update_path_box(circle.parent, path_box)
     print(circle.parent)
 
 

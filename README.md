@@ -42,7 +42,6 @@ The Stop Simulation button is non-functional at this time.
     * Arc
     * Polygon
     * Line
-
 * Segmentation
   * Today:
     * Segment is defined as `generations/splits`
@@ -65,6 +64,14 @@ The Stop Simulation button is non-functional at this time.
       * At end of each segment, new best path becomes the parent and next segment is initiated
     * May need to add new parameter to allow for differing number of generations for each segment.
       * i.e. 500k to come up with basic solution, but then run this out for 1 million more just to see if a better path can ever be found
+* Intermediate goals
+  * Rather than just 1 end goal, multiple intermediary goals will be allowed
+  * This would permit it to run around a course, i.e. track, or maze 
+* Colors
+  * Winning paths different color
+  * Color().WIN, Color().TERSE, Color().VERBOSE
+  * Color(count).TERSE returns one of X colors for count so multiple on screen are diff colors/shades
+  * ~~Reset Screen at end of simulation so only 1 path is shown at conclusion of simulation~~
 * UI
   * Allow UI Box to cease simulation
   * Data entry box
@@ -76,7 +83,18 @@ The Stop Simulation button is non-functional at this time.
       * ~~Display current generation~~
       * ~~Display current best score & its generation~~
       * Display details of current best path (turns)
+      * Show Wins
+      * Show Bests
+      * Bold labels
+      * Color change best gen/steps/score when winning path found
+      * Correct negative degrees to positive
   * ~~Allow entry of path and button to render it~~
+  * Save Path button
+    * Load path
+  * Save Config button
+    * Load config
+  * Compare Paths
+    * Would load a 2nd path file and compare against the one displayed with current config paramaters
 * Refactor "circle" to "path"
 
 ## Notes

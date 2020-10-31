@@ -135,8 +135,6 @@ class Circle:
         default.output_fields['Best Score'].update_idletasks()
 
     def advance_generation(self, generation, wins, bests, default):
-        # pprint(vars(self))
-
         if not generation % 100:
             self.update_generation_field(generation, default)
 
